@@ -205,3 +205,8 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# ArcFusion RAG System specific
+logs/
+checkpoints/
+.DS_Store

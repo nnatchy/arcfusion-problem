@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+logs/
+*.log
+
+# Checkpoints
+checkpoints/
+
+# Environment variables
+.env
+
+# Git
+.git/
+.gitignore
+
+# Documentation (not needed in container)
+*.md
+CLAUDE.md
+PROGRESS_SUMMARY.md
+QUICK_START.md
+STATUS.md
+
+# Papers (already ingested)
+papers/
+*.pdf
+
+# Test files
+tests/
+test_*.py
+
+# macOS
+.DS_Store
+
+# uv cache (keep uv.lock for reproducible builds)
+.uv/

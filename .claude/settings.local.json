@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uv sync:*)",
+      "Bash(uv run:*)",
+      "Bash(chmod:*)",
+      "Bash(curl:*)",
+      "Bash(python:*)",
+      "Bash(docker:*)",
+      "Bash(docker-compose:*)",
+      "Bash(pkill:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill:*)",
+      "WebFetch(domain:docs.langchain.com)",
+      "Bash(uv add:*)",
+      "Bash(tree:*)",
+      "Bash(cat:*)",
+      "Bash(make help:*)",
+      "Bash(make check:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
