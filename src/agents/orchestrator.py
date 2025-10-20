@@ -438,6 +438,7 @@ class Orchestrator:
 
             # Compress history if needed (token-based)
             compressed = await history_manager.compress_history(full_history)
+            recent_history = compressed.get('recent', full_history) or []
 
             # New user message for this turn
             conversation_turn = [{
@@ -449,7 +450,7 @@ class Orchestrator:
             # Note: history field uses `add` reducer, so conversation_turn will append
             initial_state: AgentState = {
                 "query": query,
-                "history": conversation_turn,  # Will be ADDED to existing history by reducer
+                "history": [*recent_history, *conversation_turn],
                 "history_summary": compressed.get('summary', ''),  # Summary of old messages
                 "session_id": session_id,
             }
