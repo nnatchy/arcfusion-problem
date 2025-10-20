@@ -27,7 +27,7 @@ st.set_page_config(
 if "messages" not in st.session_state:
     st.session_state.messages = []
 if "session_id" not in st.session_state:
-    st.session_state.session_id = "streamlit_session"
+    st.session_state.session_id = config.streamlit.default_session_id
 
 
 def format_sources(sources):
@@ -95,10 +95,10 @@ with st.sidebar:
     st.subheader("📝 Example Queries")
 
     example_queries = [
-        "What approaches were discussed in the text-to-SQL papers?",
-        "Compare the performance metrics across different models",
-        "What are the latest developments in text-to-SQL?",
-        "Summarize the Zhang et al. paper findings"
+        config.streamlit.example_query_1,
+        config.streamlit.example_query_2,
+        config.streamlit.example_query_3,
+        config.streamlit.example_query_4
     ]
 
     for query in example_queries:

@@ -124,6 +124,6 @@ async def health_check() -> HealthResponse:
 
     return HealthResponse(
         status="healthy",
-        version="0.1.0",
+        version=config.system.version,
         components=components
     )

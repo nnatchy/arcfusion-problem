@@ -18,13 +18,16 @@ from src.retrieval.vector_store import get_vector_store
 from src.core.embeddings import embedding_client
 
 
-async def ingest_pdfs(pdf_directory: str = "papers"):
+async def ingest_pdfs(pdf_directory: str = None):
     """
     Main ingestion function: process PDFs and upload to Pinecone.
 
     Args:
-        pdf_directory: Directory containing PDF files
+        pdf_directory: Directory containing PDF files (defaults to config.system.pdf_directory)
     """
+    # Use config default if not specified
+    if pdf_directory is None:
+        pdf_directory = config.system.pdf_directory
     logger.info("=" * 60)
     logger.info("🚀 Starting PDF ingestion process")
     logger.info("=" * 60)

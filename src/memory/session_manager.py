@@ -33,7 +33,7 @@ class SessionManager:
 
             checkpoint_dir = Path(config.session.checkpoint_dir)
             checkpoint_dir.mkdir(parents=True, exist_ok=True)
-            db_path = checkpoint_dir / "checkpoints.db"
+            db_path = checkpoint_dir / config.system.checkpoint_db_name
 
             logger.info(f"Using SQLite checkpointer at: {db_path}")
             return SqliteSaver.from_conn_string(str(db_path))

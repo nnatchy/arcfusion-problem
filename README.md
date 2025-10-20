@@ -429,12 +429,6 @@ Check `logs/app.log` for colored execution trace:
 
 ---
 
-## 📄 License
-
-MIT License
-
----
-
 ## 🤝 Acknowledgments
 
-Built with LangGraph, OpenAI, Pinecone, and Tavily APIs. Assignment for ArcFusion.
+Built with LangGraph, OpenAI, Pinecone, and Tavily APIs. Assignment for ArcFusion by Jirawat

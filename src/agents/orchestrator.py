@@ -96,7 +96,7 @@ async def fast_response_node(state: AgentState) -> AgentState:
     logger.info(f"⚡ Node: Fast Response ({state.get('intent')})")
 
     return {
-        "answer": state.get('fast_response', 'Hello! How can I help you with academic papers today?'),
+        "answer": state.get('fast_response', config.system.default_greeting),
         "sources": [],
         "quality_score": 1.0,
         "iteration": 0

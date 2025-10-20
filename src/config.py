@@ -16,6 +16,15 @@ load_dotenv()
 
 
 @dataclass
+class SystemConfig:
+    """System-wide configuration"""
+    version: str
+    pdf_directory: str
+    checkpoint_db_name: str
+    default_greeting: str
+
+
+@dataclass
 class LLMConfig:
     """LLM configuration"""
     provider: str
@@ -101,6 +110,11 @@ class StreamlitConfig:
     port: int
     title: str
     theme: str
+    default_session_id: str
+    example_query_1: str
+    example_query_2: str
+    example_query_3: str
+    example_query_4: str
 
 
 @dataclass
@@ -170,6 +184,7 @@ class Config:
         self._load_env_overrides()
 
         # Parse configurations
+        self.system = self._parse_system_config()
         self.llm = self._parse_llm_config()
         self.embeddings = self._parse_embedding_config()
         self.pinecone = self._parse_pinecone_config()
@@ -199,6 +214,15 @@ class Config:
                 env_value = os.getenv(env_key)
                 if env_value:
                     self.config[section][key] = env_value
+
+    def _parse_system_config(self) -> SystemConfig:
+        section = self.config["system"]
+        return SystemConfig(
+            version=section.get("version"),
+            pdf_directory=section.get("pdf_directory"),
+            checkpoint_db_name=section.get("checkpoint_db_name"),
+            default_greeting=section.get("default_greeting")
+        )
 
     def _parse_llm_config(self) -> LLMConfig:
         section = self.config["llm"]
@@ -286,7 +310,12 @@ class Config:
             enabled=section.getboolean("enabled"),
             port=section.getint("port"),
             title=section.get("title"),
-            theme=section.get("theme")
+            theme=section.get("theme"),
+            default_session_id=section.get("default_session_id"),
+            example_query_1=section.get("example_query_1"),
+            example_query_2=section.get("example_query_2"),
+            example_query_3=section.get("example_query_3"),
+            example_query_4=section.get("example_query_4")
         )
 
     def _parse_logging_config(self) -> LoggingConfig:

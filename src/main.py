@@ -15,7 +15,7 @@ setup_logging(config)
 app = FastAPI(
     title="ArcFusion RAG System",
     description="Multi-agent RAG system for academic papers with recursive retrieval and web search",
-    version="0.1.0",
+    version=config.system.version,
     docs_url="/docs",
     redoc_url="/redoc"
 )
@@ -85,7 +85,7 @@ async def root():
     """Root endpoint"""
     return {
         "message": "ArcFusion RAG System API",
-        "version": "0.1.0",
+        "version": config.system.version,
         "docs": "/docs",
         "health": "/api/v1/health"
     }
