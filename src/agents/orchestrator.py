@@ -296,7 +296,7 @@ def should_reflect_again(state: AgentState) -> Literal["reflect_again", "finish"
     quality_score = state.get('quality_score', 0.0)
     iteration = state.get('iteration', 0)
     max_iterations = config.agents.max_iterations
-    quality_threshold = 0.7  # Performance optimized threshold
+    quality_threshold = config.agents.orchestrator_quality_threshold
 
     if quality_score >= quality_threshold:
         logger.success(f"✅ Quality threshold met (score: {quality_score:.2f})")

@@ -64,7 +64,7 @@ class WebSearchAgent:
         response = await llm_client.generate(
             system_prompt=self.system_prompt,
             user_prompt=user_prompt,
-            temperature=0.1
+            temperature=config.agents.web_search_temperature
         )
 
         logger.success("✅ Web search summary generated")

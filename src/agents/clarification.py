@@ -50,7 +50,7 @@ class ClarificationAgent:
         # Format history (convert from role/content format)
         history_str = "\n".join([
             f"{h.get('role', 'user').title()}: {h.get('content', '')}"
-            for h in history[-6:]  # Last 6 messages
+            for h in history[-config.agents.clarification_history_window:]  # Configurable history window
         ]) if history else "No previous conversation"
 
         # Format summary
@@ -67,7 +67,7 @@ class ClarificationAgent:
         response = await llm_client.generate(
             system_prompt=self.system_prompt,
             user_prompt=user_prompt,
-            temperature=0.0,  # Low temperature for consistent security decisions
+            temperature=config.agents.clarification_temperature,
             response_format={"type": "json_object"}
         )
 

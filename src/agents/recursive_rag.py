@@ -74,7 +74,7 @@ class RecursiveRAGAgent:
         # Format history (convert from role/content format)
         history_str = "\n".join([
             f"{h.get('role', 'user').title()}: {h.get('content', '')}"
-            for h in history[-6:]  # Last 6 messages
+            for h in history[-config.agents.rag_history_window:]  # Configurable history window
         ]) if history else "No previous conversation"
 
         # Format summary
@@ -95,7 +95,7 @@ class RecursiveRAGAgent:
         response = await llm_client.generate(
             system_prompt=self.system_prompt,
             user_prompt=user_prompt,
-            temperature=0.1,
+            temperature=config.agents.recursive_rag_temperature,
             response_format={"type": "json_object"}
         )
 

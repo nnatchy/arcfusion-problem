@@ -10,8 +10,12 @@ import json
 import argparse
 from pathlib import Path
 
+# Add src to path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from src.config import config
 
-def check_accuracy_threshold(results_file: str = "evaluation_results.json", min_accuracy: float = 0.70):
+
+def check_accuracy_threshold(results_file: str = None, min_accuracy: float = 0.70):
     """
     Check if evaluation results meet minimum accuracy threshold.
 
@@ -22,6 +26,8 @@ def check_accuracy_threshold(results_file: str = "evaluation_results.json", min_
     Returns:
         Exit code: 0 if passing, 1 if failing
     """
+    if results_file is None:
+        results_file = config.evaluation.results_file
     results_path = Path(results_file)
 
     if not results_path.exists():
@@ -68,8 +74,8 @@ def main():
     )
     parser.add_argument(
         "--results",
-        default="evaluation_results.json",
-        help="Path to evaluation results JSON (default: evaluation_results.json)"
+        default=None,
+        help=f"Path to evaluation results JSON (default: {config.evaluation.results_file})"
     )
     parser.add_argument(
         "--min",

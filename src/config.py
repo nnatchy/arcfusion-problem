@@ -25,6 +25,14 @@ class SystemConfig:
 
 
 @dataclass
+class EvaluationConfig:
+    """Evaluation configuration"""
+    results_file: str
+    history_file: str
+    test_cases_file: str
+
+
+@dataclass
 class LLMConfig:
     """LLM configuration"""
     provider: str
@@ -49,6 +57,7 @@ class PineconeConfig:
     cloud: str
     region: str
     namespace: str
+    initialization_wait_seconds: int
 
 
 @dataclass
@@ -65,6 +74,10 @@ class RAGConfig:
     max_recursion_depth: int
     citation_extraction_enabled: bool
     follow_citations: bool
+    max_citations_per_doc: int
+    nested_retrieval_top_k: int
+    upsert_batch_size: int
+    chunk_sentence_window: int
 
 
 @dataclass
@@ -75,6 +88,7 @@ class WebSearchConfig:
     search_depth: str
     include_raw_content: bool
     include_answer: bool
+    excerpt_length: int
 
 
 @dataclass
@@ -91,8 +105,31 @@ class AgentConfig:
     """Agent behavior configuration"""
     max_iterations: int
     confidence_threshold: float
+    reflection_quality_threshold: float
+    orchestrator_quality_threshold: float
     enable_security_check: bool
     enable_reflection: bool
+    # Agent-specific temperatures
+    intent_router_temperature: float
+    clarification_temperature: float
+    router_temperature: float
+    planner_temperature: float
+    recursive_rag_temperature: float
+    synthesis_temperature: float
+    reflection_temperature: float
+    web_search_temperature: float
+    # History windows
+    intent_router_history_window: int
+    clarification_history_window: int
+    router_history_window: int
+    planner_history_window: int
+    synthesis_history_window: int
+    rag_history_window: int
+    # Source limits
+    synthesis_max_sources: int
+    rag_max_sources: int
+    reflection_max_sources: int
+    source_preview_length: int
 
 
 @dataclass
@@ -134,6 +171,8 @@ class MemoryConfig:
     max_history_tokens: int
     keep_recent_tokens: int
     summary_target_tokens: int
+    char_to_token_ratio: int
+    summary_temperature: float
 
 
 @dataclass
@@ -192,6 +231,7 @@ class Config:
         self.web_search = self._parse_web_search_config()
         self.session = self._parse_session_config()
         self.memory = self._parse_memory_config()
+        self.evaluation = self._parse_evaluation_config()
         self.agents = self._parse_agent_config()
         self.api = self._parse_api_config()
         self.streamlit = self._parse_streamlit_config()
@@ -248,7 +288,8 @@ class Config:
             metric=section.get("metric"),
             cloud=section.get("cloud"),
             region=section.get("region"),
-            namespace=section.get("namespace")
+            namespace=section.get("namespace"),
+            initialization_wait_seconds=section.getint("initialization_wait_seconds")
         )
 
     def _parse_rag_config(self) -> RAGConfig:
@@ -264,7 +305,11 @@ class Config:
             recursive_retrieval=section.getboolean("recursive_retrieval"),
             max_recursion_depth=section.getint("max_recursion_depth"),
             citation_extraction_enabled=section.getboolean("citation_extraction_enabled"),
-            follow_citations=section.getboolean("follow_citations")
+            follow_citations=section.getboolean("follow_citations"),
+            max_citations_per_doc=section.getint("max_citations_per_doc"),
+            nested_retrieval_top_k=section.getint("nested_retrieval_top_k"),
+            upsert_batch_size=section.getint("upsert_batch_size"),
+            chunk_sentence_window=section.getint("chunk_sentence_window")
         )
 
     def _parse_web_search_config(self) -> WebSearchConfig:
@@ -274,7 +319,8 @@ class Config:
             max_results=section.getint("max_results"),
             search_depth=section.get("search_depth"),
             include_raw_content=section.getboolean("include_raw_content"),
-            include_answer=section.getboolean("include_answer")
+            include_answer=section.getboolean("include_answer"),
+            excerpt_length=section.getint("excerpt_length")
         )
 
     def _parse_session_config(self) -> SessionConfig:
@@ -291,8 +337,31 @@ class Config:
         return AgentConfig(
             max_iterations=section.getint("max_iterations"),
             confidence_threshold=section.getfloat("confidence_threshold"),
+            reflection_quality_threshold=section.getfloat("reflection_quality_threshold"),
+            orchestrator_quality_threshold=section.getfloat("orchestrator_quality_threshold"),
             enable_security_check=section.getboolean("enable_security_check"),
-            enable_reflection=section.getboolean("enable_reflection")
+            enable_reflection=section.getboolean("enable_reflection"),
+            # Agent-specific temperatures
+            intent_router_temperature=section.getfloat("intent_router_temperature"),
+            clarification_temperature=section.getfloat("clarification_temperature"),
+            router_temperature=section.getfloat("router_temperature"),
+            planner_temperature=section.getfloat("planner_temperature"),
+            recursive_rag_temperature=section.getfloat("recursive_rag_temperature"),
+            synthesis_temperature=section.getfloat("synthesis_temperature"),
+            reflection_temperature=section.getfloat("reflection_temperature"),
+            web_search_temperature=section.getfloat("web_search_temperature"),
+            # History windows
+            intent_router_history_window=section.getint("intent_router_history_window"),
+            clarification_history_window=section.getint("clarification_history_window"),
+            router_history_window=section.getint("router_history_window"),
+            planner_history_window=section.getint("planner_history_window"),
+            synthesis_history_window=section.getint("synthesis_history_window"),
+            rag_history_window=section.getint("rag_history_window"),
+            # Source limits
+            synthesis_max_sources=section.getint("synthesis_max_sources"),
+            rag_max_sources=section.getint("rag_max_sources"),
+            reflection_max_sources=section.getint("reflection_max_sources"),
+            source_preview_length=section.getint("source_preview_length")
         )
 
     def _parse_api_config(self) -> APIConfig:
@@ -334,7 +403,17 @@ class Config:
         return MemoryConfig(
             max_history_tokens=section.getint("max_history_tokens"),
             keep_recent_tokens=section.getint("keep_recent_tokens"),
-            summary_target_tokens=section.getint("summary_target_tokens")
+            summary_target_tokens=section.getint("summary_target_tokens"),
+            char_to_token_ratio=section.getint("char_to_token_ratio"),
+            summary_temperature=section.getfloat("summary_temperature")
+        )
+
+    def _parse_evaluation_config(self) -> EvaluationConfig:
+        section = self.config["evaluation"]
+        return EvaluationConfig(
+            results_file=section.get("results_file"),
+            history_file=section.get("history_file"),
+            test_cases_file=section.get("test_cases_file")
         )
 
     def _parse_prompts(self) -> AgentPrompts:

@@ -184,6 +184,12 @@ arcfusion-problem/
 ├── scripts/
 │   ├── ingest_pdfs.py    # PDF → Pinecone script
 │   └── simple_test.py    # End-to-end test
+├── evaluation/           # Golden Q&A testing
+│   ├── evaluate_golden_qa.py        # Test suite (100% accuracy: 6/6)
+│   ├── check_accuracy_threshold.py  # CI/CD threshold checker (70%)
+│   ├── golden_qa_test_cases.json    # 6 test cases (4 categories)
+│   ├── evaluation_results.json      # Latest test results
+│   └── evaluation_history.json      # Historical accuracy tracking
 ├── config.ini            # All prompts + settings (460+ lines)
 ├── docker-compose.yaml   # Service orchestration
 ├── Dockerfile            # Container image
@@ -257,7 +263,11 @@ Health check endpoint.
 
 ### Bonus Features ✅
 - [x] **Clarification Agent** - Detects ambiguous queries like "Tell me more about it"
-- [x] **Evaluation system** - Quality scoring (0-1) + reflection loop
+- [x] **Evaluation system** - Golden Q&A test suite with **100% accuracy (6/6 tests)**
+  - Config-driven paths via `[evaluation]` section (NO hardcoded strings)
+  - CI/CD threshold checker (70% minimum)
+  - Tests: ambiguous queries, PDF-only, web-only, autonomous multi-step
+- [x] **Quality scoring** - Reflection loop with 0-1 scoring (threshold: 0.7)
 - [x] **Autonomous planning** - Planner agent decomposes complex multi-step queries
 
 ### Real-World Scenarios Handled ✅
@@ -299,7 +309,16 @@ max_iterations = 1            # Reflection loop limit
 [memory]
 max_history_tokens = 10000    # Trigger compression
 keep_recent_tokens = 5000     # Keep in detail
+
+[evaluation]
+results_file = evaluation/evaluation_results.json
+history_file = evaluation/evaluation_history.json
+test_cases_file = evaluation/golden_qa_test_cases.json
 ```
+
+**Config-Driven Paths** (NO hardcoding):
+- Evaluation scripts use `config.evaluation.*` for all file paths
+- Example: `config.evaluation.results_file` → `"evaluation/evaluation_results.json"`
 
 **Override with Environment Variables:**
 ```bash
@@ -367,11 +386,37 @@ AGENTS__MAX_ITERATIONS=3
 - **Citation graph visualization**: Interactive knowledge map
 - **Custom knowledge base**: Upload your own PDFs
 - **Fine-tuning**: Domain-specific embeddings for academic papers
-- **Evaluation suite**: Automated testing with golden Q&A pairs
 
 ---
 
 ## 🧪 Development
+
+### Quick Start with Makefile
+
+```bash
+# See all available commands
+make help
+
+# Setup development environment
+make dev-setup          # Creates .env, installs dependencies
+
+# Ingest PDFs to Pinecone
+make ingest
+
+# Run tests
+make test-components    # Test core components
+make test-simple        # End-to-end test
+make test-eval          # Golden Q&A evaluation (100% accuracy: 6/6)
+make test-eval-threshold # Check if meets 70% threshold
+make test-all           # Run all tests
+
+# Docker commands
+make build              # Build Docker images
+make up                 # Start API + Streamlit
+make down               # Stop services
+make logs               # View logs
+make shell              # Enter container shell
+```
 
 ### Local Setup (without Docker)
 
@@ -390,6 +435,8 @@ uv run streamlit run src/ui/streamlit_app.py --server.port 8501
 
 # Run tests
 uv run python scripts/simple_test.py
+uv run python evaluation/evaluate_golden_qa.py
+uv run python evaluation/check_accuracy_threshold.py
 ```
 
 ### Testing Individual Agents
@@ -424,6 +471,7 @@ Check `logs/app.log` for colored execution trace:
 - **Error Handling**: Graceful failures with proper HTTP status codes
 - **Type Safety**: Type hints throughout codebase
 - **Config-Driven**: All prompts externalized to `config.ini`
+- **Config-Driven Paths**: Evaluation file paths in `[evaluation]` section (NO hardcoded strings)
 - **Singleton Pattern**: Shared resources (vector store, LLM client)
 - **Async/Await**: Non-blocking I/O for concurrent operations
 

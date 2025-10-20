@@ -10,12 +10,45 @@ ArcFusion is a **multi-agent RAG system** for academic paper Q&A using LangGraph
 
 ## Development Commands
 
+### Quick Start with Makefile
+
+```bash
+# See all available commands
+make help
+
+# Setup development environment
+make dev-setup          # Creates .env, installs dependencies
+
+# Ingest PDFs to Pinecone
+make ingest
+
+# Run tests
+make test-components    # Test core components
+make test-simple        # End-to-end test
+make test-eval          # Golden Q&A evaluation (100% accuracy: 6/6)
+make test-eval-threshold # Check if meets 70% threshold
+make test-all           # Run all tests
+
+# Docker commands
+make build              # Build Docker images
+make up                 # Start API + Streamlit
+make down               # Stop services
+make logs               # View logs
+make shell              # Enter container shell
+
+# Cleanup
+make clean              # Remove logs, cache
+make clean-docker       # Remove Docker resources
+```
+
+### Alternative: Direct uv Commands
+
 ```bash
 # Install dependencies (uses uv - 10x faster than pip)
 uv sync
 
 # Test core components
-uv run python scripts/quick_test.py
+uv run python scripts/test_components.py
 
 # Ingest PDFs to Pinecone
 uv run python scripts/ingest_pdfs.py
@@ -25,6 +58,12 @@ uv run python scripts/simple_test.py
 
 # Test token-based history compression
 uv run python scripts/test_history_compression.py
+
+# Run Golden Q&A evaluation
+uv run python evaluation/evaluate_golden_qa.py
+
+# Check evaluation threshold
+uv run python evaluation/check_accuracy_threshold.py
 
 # Run FastAPI server
 ./scripts/run_api.sh
@@ -204,9 +243,11 @@ max_iterations = 1  # Single reflection pass
 ## Key Files Reference
 
 ### Configuration
-- **`config.ini`** - All prompts (460+ lines), LLM/RAG/Memory settings, must escape % as %%
+- **`config.ini`** - All prompts (460+ lines), LLM/RAG/Memory/Evaluation settings, must escape % as %%
+  - Includes `[evaluation]` section for test file paths (config-driven, NO hardcoding)
 - **`.env`** - API keys (OPENAI_API_KEY, PINECONE_API_KEY, TAVILY_API_KEY)
 - **`src/config.py`** - Config loader with environment overrides, add dataclass for each config section
+  - `EvaluationConfig`: results_file, history_file, test_cases_file (recently added)
 
 ### Agent System
 - **`src/agents/orchestrator.py`** - LangGraph StateGraph, conditional routing, never use `**state` spreading
@@ -231,6 +272,16 @@ max_iterations = 1  # Single reflection pass
 - **`scripts/test_history_compression.py`** - Test token-based compression with long conversations
 - **`scripts/run_api.sh`** / **`scripts/run_streamlit.sh`** - Launch services
 
+### Evaluation System
+- **`evaluation/evaluate_golden_qa.py`** - Golden Q&A test suite (100% accuracy: 6/6 tests passed)
+  - Tests: ambiguous queries, PDF-only, web-only, autonomous multi-step
+  - Uses config-driven paths: `config.evaluation.test_cases_file`, etc.
+- **`evaluation/check_accuracy_threshold.py`** - CI/CD threshold checker (70% minimum)
+  - Uses `config.evaluation.results_file` for path (NO hardcoding)
+- **`evaluation/golden_qa_test_cases.json`** - 6 test cases across 4 categories
+- **`evaluation/evaluation_results.json`** - Latest test results with quality scores
+- **`evaluation/evaluation_history.json`** - Historical accuracy tracking
+
 ## Common Development Patterns
 
 ### Adding a New Agent
@@ -246,11 +297,49 @@ max_iterations = 1  # Single reflection pass
 
 ### Adding a New Config Section
 
-1. Create dataclass in `src/config.py` (e.g., `MyConfig` with typed fields)
-2. Add section to `config.ini`: `[my_section]` with key=value pairs
-3. Create `_parse_my_config()` method returning `MyConfig` instance
-4. Add `self.my_section = self._parse_my_config()` in `Config.__init__`
-5. Access via `config.my_section.field_name`
+Example: We recently added **EvaluationConfig** for test file paths:
+
+1. **Create dataclass** in `src/config.py`:
+```python
+@dataclass
+class EvaluationConfig:
+    """Evaluation configuration"""
+    results_file: str
+    history_file: str
+    test_cases_file: str
+```
+
+2. **Add section** to `config.ini`:
+```ini
+[evaluation]
+results_file = evaluation/evaluation_results.json
+history_file = evaluation/evaluation_history.json
+test_cases_file = evaluation/golden_qa_test_cases.json
+```
+
+3. **Create parser method** in `src/config.py`:
+```python
+def _parse_evaluation_config(self) -> EvaluationConfig:
+    section = self.config["evaluation"]
+    return EvaluationConfig(
+        results_file=section.get("results_file"),
+        history_file=section.get("history_file"),
+        test_cases_file=section.get("test_cases_file")
+    )
+```
+
+4. **Wire it up** in `Config.__init__`:
+```python
+self.evaluation = self._parse_evaluation_config()
+```
+
+5. **Access in code**:
+```python
+from src.config import config
+results_file = config.evaluation.results_file  # "evaluation/evaluation_results.json"
+```
+
+This pattern ensures NO hardcoded paths - everything driven by `config.ini`.
 
 ### Modifying Agent Prompts
 
@@ -277,6 +366,43 @@ Check `logs/app.log` for colored LangGraph execution trace:
 from src.agents.router import router_agent
 result = await router_agent.route("What did OpenAI release?")
 print(result['decision'])  # "web_only"
+```
+
+### Running Evaluation Tests
+
+```bash
+# Run Golden Q&A evaluation (6 test cases)
+make test-eval
+# Output: 100% accuracy (6/6 tests passed)
+# Tests: ambiguous, PDF-only, web-only, autonomous multi-step
+
+# Check if meets 70% threshold (for CI/CD)
+make test-eval-threshold
+# Exit code 0 if passing, 1 if failing
+
+# Run all tests (components + simple + evaluation)
+make test-all
+```
+
+**Config-Driven Evaluation Paths** (NO hardcoding):
+```python
+# In evaluation scripts
+from src.config import config
+
+# Load test cases from config
+test_cases_file = config.evaluation.test_cases_file  # "evaluation/golden_qa_test_cases.json"
+
+# Save results to config path
+results_file = config.evaluation.results_file        # "evaluation/evaluation_results.json"
+history_file = config.evaluation.history_file        # "evaluation/evaluation_history.json"
+```
+
+The `[evaluation]` section in `config.ini`:
+```ini
+[evaluation]
+results_file = evaluation/evaluation_results.json
+history_file = evaluation/evaluation_history.json
+test_cases_file = evaluation/golden_qa_test_cases.json
 ```
 
 ## Environment Variables
@@ -348,25 +474,28 @@ return {**state, "field": value}  # ❌
 
 ## Future Improvements
 
-- **Docker Setup**: Create Dockerfile + docker-compose.yml for deployment
-- **README with Architecture Diagram**: Visual documentation of agent flow
 - **Performance Optimization**: Target <10s per research query (currently ~30-60s)
+  - Cache embeddings for frequent queries
+  - Optimize LLM calls (reduce agent-to-agent latency)
+  - Parallel web+RAG execution for hybrid queries (currently sequential)
 - **Citation-Peek**: Fetch title/abstract before full PDF in recursive retrieval
-- **True Parallel Execution**: Implement concurrent web+RAG for hybrid queries
 - **Streaming Responses**: Stream answers token-by-token via SSE
-- **Advanced Caching**: Cache embeddings and frequent queries
+- **Advanced Caching**: Redis for LLM responses + embeddings
+- **Production Database**: PostgreSQL for session checkpointer (currently in-memory)
+- **Monitoring**: Prometheus metrics + Grafana dashboards
 
 ## Assignment Requirements Checklist
 
 ✅ Multi-agent architecture (LangGraph with 8 agents)
-✅ No hardcoded logic (all prompts in config.ini)
+✅ No hardcoded logic (all prompts in config.ini, evaluation paths config-driven)
 ✅ Handles ambiguous queries (clarification agent)
 ✅ PDF-based Q&A (recursive retrieval + citations)
 ✅ Web search (Tavily when out-of-scope)
 ✅ Session memory (LangGraph checkpointer + token-based compression)
 ✅ RESTful API (FastAPI: /ask, /clear_memory, /health)
 ✅ Intent classification (fast path for greetings/meta)
-❌ Docker + docker-compose (CRITICAL - not yet implemented)
-❌ README with architecture diagram (CRITICAL)
+✅ Docker + docker-compose (fully implemented with Makefile commands)
+✅ README with architecture diagram (mermaid diagram showing full flow)
+✅ Evaluation system (100% accuracy on Golden Q&A: 6/6 tests passed)
 ⚠️ Performance (<10s target, currently ~30-60s for research queries)
 

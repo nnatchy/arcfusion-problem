@@ -163,11 +163,11 @@ test-perf:
 
 test-eval:
 	@echo "🧪 Running Golden Q&A evaluation (Bonus #2)..."
-	uv run python scripts/evaluate_golden_qa.py
+	uv run python evaluation/evaluate_golden_qa.py
 
 test-eval-threshold:
 	@echo "🎯 Checking evaluation threshold..."
-	uv run python scripts/check_accuracy_threshold.py
+	uv run python evaluation/check_accuracy_threshold.py
 
 test-all: test-components test-simple test-eval
 	@echo "✅ All tests complete!"

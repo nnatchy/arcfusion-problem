@@ -17,7 +17,7 @@ class ReflectionAgent:
     def __init__(self):
         self.system_prompt = config.prompts.reflection_system
         self.user_prompt_template = config.prompts.reflection_user
-        self.quality_threshold = 0.9  # If score >= 0.9, no revision needed
+        self.quality_threshold = config.agents.reflection_quality_threshold
 
     async def reflect(
         self,
@@ -57,7 +57,7 @@ class ReflectionAgent:
         response = await llm_client.generate(
             system_prompt=self.system_prompt,
             user_prompt=user_prompt,
-            temperature=0.1,
+            temperature=config.agents.reflection_temperature,
             response_format={"type": "json_object"}
         )
 

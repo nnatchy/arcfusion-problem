@@ -1,0 +1,174 @@
+{
+  "timestamp": "2025-10-20T20:22:46.778421",
+  "summary": {
+    "total_tests": 6,
+    "passed_tests": 6,
+    "failed_tests": 0,
+    "accuracy": 1.0,
+    "avg_latency_seconds": 33.49175349871317,
+    "p50_latency": 36.03364300727844,
+    "p95_latency": 73.72486281394958,
+    "p99_latency": 73.72486281394958
+  },
+  "categories": {
+    "ambiguous": {
+      "accuracy": 1.0,
+      "passed": 2,
+      "total": 2
+    },
+    "pdf_only": {
+      "accuracy": 1.0,
+      "passed": 2,
+      "total": 2
+    },
+    "autonomous": {
+      "accuracy": 1.0,
+      "passed": 1,
+      "total": 1
+    },
+    "web_only": {
+      "accuracy": 1.0,
+      "passed": 1,
+      "total": 1
+    }
+  },
+  "test_results": [
+    {
+      "test_id": "ambiguous_query_1",
+      "category": "ambiguous",
+      "query": "How many examples are enough for good accuracy?",
+      "passed": true,
+      "latency_seconds": 6.8383848667144775,
+      "status": "detected_ambiguity",
+      "answer": null,
+      "expected_keywords": null,
+      "found_keywords": null,
+      "missing_keywords": null,
+      "sources_count": 0,
+      "pdf_sources": 0,
+      "web_sources": 0,
+      "error": null,
+      "quality_score": null,
+      "clarification_detected": true,
+      "multi_step_planning": false
+    },
+    {
+      "test_id": "ambiguous_query_2",
+      "category": "ambiguous",
+      "query": "Tell me more about it",
+      "passed": true,
+      "latency_seconds": 5.764887571334839,
+      "status": "detected_ambiguity",
+      "answer": null,
+      "expected_keywords": null,
+      "found_keywords": null,
+      "missing_keywords": null,
+      "sources_count": 0,
+      "pdf_sources": 0,
+      "web_sources": 0,
+      "error": null,
+      "quality_score": null,
+      "clarification_detected": true,
+      "multi_step_planning": false
+    },
+    {
+      "test_id": "pdf_query_1",
+      "category": "pdf_only",
+      "query": "Which prompt template gave the highest zero-shot accuracy on Spider in Zhang et al. (2024)?",
+      "passed": true,
+      "latency_seconds": 36.03364300727844,
+      "status": "correct_answer",
+      "answer": "In the study by Zhang et al. (2024), the prompt template that achieved the highest zero-shot accuracy on the Spider dataset is **SimpleDDL-MD-Chat**, which recorded an accuracy of **65.0%**. This performance was evaluated among various prompt templates, and SimpleDDL-MD-Chat outperformed others in the zero-shot setting. Here are some key points from the study:\n\n- **Highest Accuracy**: SimpleDDL-MD-Chat achieved **65.0%** accuracy, making it the top performer.\n- **Evaluation Methodology**: The authors conducted extensive evaluations across multiple large language models (LLMs) and various prompt configurations to determine optimal performance in end-to-end Text-to-SQL tasks.\n- **Significance of Results**: The results indicated that SimpleDDL-MD-Chat not only provided the best accuracy but also highlighted the effectiveness of structured prompt designs in enhancing model performance on complex SQL generation tasks.\n\nFor further details, you can refer to the specific findings in the paper, particularly in the sections discussing the performance metrics of different prompt templates [Zhang et al., 2024].",
+      "expected_keywords": [
+        "SimpleDDL-MD-Chat",
+        "65",
+        "72",
+        "EX"
+      ],
+      "found_keywords": [
+        "SimpleDDL-MD-Chat",
+        "65",
+        "EX"
+      ],
+      "missing_keywords": [
+        "72"
+      ],
+      "sources_count": 15,
+      "pdf_sources": 15,
+      "web_sources": 0,
+      "error": null,
+      "quality_score": 0.85,
+      "clarification_detected": false,
+      "multi_step_planning": false
+    },
+    {
+      "test_id": "pdf_query_2",
+      "category": "pdf_only",
+      "query": "What execution accuracy does davinci-codex reach on Spider with the 'Create Table + Select 3' prompt?",
+      "passed": true,
+      "latency_seconds": 31.636857986450195,
+      "status": "correct_answer",
+      "answer": "The **davinci-codex** model achieves an execution accuracy of **67%** on the Spider dataset when using the 'Create Table + Select 3' prompt. This performance indicates that the model can generate SQL queries that successfully execute against the database, aligning with the expected results for the given natural language queries.\n\n### Context of Evaluation\nThis accuracy is part of a broader evaluation of the model's capabilities in text-to-SQL tasks. The study by Rajkumar et al. (2022) provides a comprehensive analysis of various prompt styles and their impact on execution accuracy across different models, including Codex and GPT-3 variants. Notably, the model performs competitively without requiring task-specific fine-tuning.\n\n### Summary\nIn summary, for the specific prompt of 'Create Table + Select 3', davinci-codex's execution accuracy stands at **67%**, reflecting its effectiveness in generating valid SQL queries from natural language inputs.\n\n### Sources\n- Rajkumar et al. (2022). Evaluating the Text-to-SQL Capabilities of Large Language Models. [Link to Paper](papers/Rajkumar et al. - 2022 - Evaluating the Text-to-SQL Capabilities of Large L.pdf)",
+      "expected_keywords": [
+        "67",
+        "execution accuracy",
+        "Spider",
+        "dev set"
+      ],
+      "found_keywords": [
+        "67",
+        "execution accuracy",
+        "Spider"
+      ],
+      "missing_keywords": [
+        "dev set"
+      ],
+      "sources_count": 15,
+      "pdf_sources": 15,
+      "web_sources": 0,
+      "error": null,
+      "quality_score": 0.85,
+      "clarification_detected": false,
+      "multi_step_planning": false
+    },
+    {
+      "test_id": "autonomous_query_1",
+      "category": "autonomous",
+      "query": "What's the state-of-the-art text-to-sql approach? And search on the web to tell me more about the authors who contributed to the approach",
+      "passed": true,
+      "latency_seconds": 73.72486281394958,
+      "status": "multi_step_success",
+      "answer": "The current state-of-the-art in text-to-SQL approaches has evolved significantly, particularly with the integration of large language models (LLMs) and innovative methodologies. A comprehensive survey by Katsogiannis-Meimarakis and Koutrika (2023) outlines the landscape of deep learning methods in this domain, providing a fine-grained taxonomy of text-to-SQL systems and analyzing their strengths and weaknesses. However, specific state-of-the-art models or metrics were not detailed in their work [Katsogiannis-Meimarakis and Koutrika, 2023].\n\n### Key Approaches\n\n1. **Large Language Models (LLMs)**: The advent of models like OpenAI's ChatGPT and Google's Gemini has transformed text-to-SQL systems. These models leverage advanced reasoning capabilities to enhance the accuracy and efficiency of SQL query generation from natural language inputs [Google Cloud Blog](https://cloud.google.com/blog/products/databases/techniques-for-improving-text-to-sql).\n\n2. **RATSQL**: Proposed by Wang et al. in 2020, RATSQL (Relation-Aware Schema Encoding) has been a foundational method in the field. It effectively links user queries with database schemas, allowing for more accurate SQL generation. This method has inspired many subsequent models and remains influential in the text-to-SQL landscape [Wang et al., 2020; Springer](https://link.springer.com/article/10.1007/s10664-023-10374-z).\n\n3. **Decomposed In-Context Learning**: Recent work by Pourreza and Rafiei (2023) introduces a novel approach that breaks down the text-to-SQL task into manageable components, improving performance on complex queries [Pourreza and Rafiei, 2023; Medium](https://medium.com/the-story-within/state-of-text-to-sql-dc3e3e4f8c64).\n\n4. **Evolution of Techniques**: The journey of text-to-SQL began with rule-based systems and has evolved through various architectures, including LSTMs and Transformers. The use of pre-trained models like BERT and RoBERTa has become common, especially since 2021, as they are fine-tuned on specific text-to-SQL datasets [Prem AI](https://blog.premai.io/state-of-text2sql-2024/).\n\n### Key Contributors\n\n- **George Katsogiannis-Meimarakis** and **Georgia Koutrika**: Their survey provides a comprehensive overview of deep learning approaches for text-to-SQL, detailing the current landscape and challenges [Katsogiannis-Meimarakis and Koutrika, 2023].\n- **Wang et al.**: Their work on RATSQL has been pivotal in shaping subsequent models and methodologies in the text-to-SQL domain [Wang et al., 2020; Springer](https://link.springer.com/article/10.1007/s10664-023-10374-z).\n- **Pramit Choudhary** and **Michal Malohlava**: They have contributed to the discourse on the current state and future directions of text-to-SQL, emphasizing the importance of ongoing research and development in this area [Choudhary and Malohlava, 2023; Medium](https://medium.com/the-story-within/state-of-text-to-sql-dc3e3e4f8c64).\n- **Pourreza and Rafiei**: Their recent methodologies push the boundaries of text-to-SQL capabilities, focusing on improving the learning process for complex queries [Pourreza and Rafiei, 2023; Medium](https://medium.com/the-story-within/state-of-text-to-sql-dc3e3e4f8c64).\n\n### Conclusion\n\nThe text-to-SQL landscape is rapidly evolving, driven by advancements in machine learning and natural language processing. The contributions from various researchers are pivotal in shaping the future of this technology, making it more accessible and effective for users. For the latest insights, the articles referenced provide a comprehensive overview of current methodologies and key contributors in the field.",
+      "expected_keywords": null,
+      "found_keywords": null,
+      "missing_keywords": null,
+      "sources_count": 20,
+      "pdf_sources": 15,
+      "web_sources": 5,
+      "error": null,
+      "quality_score": 0.85,
+      "clarification_detected": false,
+      "multi_step_planning": true
+    },
+    {
+      "test_id": "web_query_1",
+      "category": "web_only",
+      "query": "What did OpenAI release this month?",
+      "passed": true,
+      "latency_seconds": 46.951884746551514,
+      "status": "web_search_success",
+      "answer": "In October 2023, OpenAI made several notable announcements during their DevDay event, highlighting advancements in their AI models and tools. Here are the key releases:\n\n1. **New Models**:\n   - **GPT-5 Pro**: This latest iteration of OpenAI's language model enhances capabilities across various applications, improving performance and versatility in tasks such as natural language understanding and generation.\n   - **Codex**: Now generally available, Codex includes integration with Slack, allowing developers to utilize AI for coding tasks more effectively, thereby streamlining the development process.\n   - **o3 and o4-mini Models**: These models are designed to enhance reasoning capabilities, enabling deeper analysis and interaction with tools within ChatGPT. They represent a significant step forward in the AI's ability to process and respond to complex queries, making them more adept at handling intricate tasks [The Neuron](https://www.theneuron.ai/explainer-articles/everything-openai-released-on-devday-2025-explained), [OpenAI Help Center](https://help.openai.com/en/articles/6825453-chatgpt-release-notes).\n\n2. **Developer Tools**:\n   - **Apps SDK**: This toolkit allows developers to create native applications using ChatGPT, facilitating the integration of AI into various software solutions and enhancing user experiences.\n   - **AgentKit**: A new visual Agent Builder was introduced for deploying multi-agent workflows, streamlining the development process for complex AI applications [OpenAI Official Site](https://openai.com/news/).\n\n3. **Strategic Collaborations**:\n   - OpenAI announced a partnership with Japan\u2019s Digital Agency aimed at addressing the malicious uses of AI, underscoring their commitment to ethical AI deployment and safety [OpenAI Global Affairs](https://openai.com/global-affairs/disrupting-malicious-uses-of-ai-october-2025/).\n\nThese updates reflect OpenAI's ongoing efforts to enhance their AI offerings and support developers in creating innovative applications, marking a significant month for the organization in terms of technological advancements and strategic initiatives.",
+      "expected_keywords": null,
+      "found_keywords": null,
+      "missing_keywords": null,
+      "sources_count": 5,
+      "pdf_sources": 0,
+      "web_sources": 5,
+      "error": null,
+      "quality_score": 0.75,
+      "clarification_detected": false,
+      "multi_step_planning": false
+    }
+  ],
+  "failed_tests": []
+}

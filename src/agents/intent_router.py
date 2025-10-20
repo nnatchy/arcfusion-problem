@@ -52,7 +52,7 @@ class IntentRouterAgent:
         # Format history (convert from role/content format)
         history_str = "\n".join([
             f"{h.get('role', 'user').title()}: {h.get('content', '')}"
-            for h in history[-6:]  # Last 6 messages (3 turns)
+            for h in history[-config.agents.intent_router_history_window:]  # Configurable history window
         ]) if history else "No previous conversation"
 
         # Format summary
@@ -69,7 +69,7 @@ class IntentRouterAgent:
         response = await llm_client.generate(
             system_prompt=self.system_prompt,
             user_prompt=user_prompt,
-            temperature=0.0,  # Deterministic for consistent routing
+            temperature=config.agents.intent_router_temperature,
             response_format={"type": "json_object"}
         )
 

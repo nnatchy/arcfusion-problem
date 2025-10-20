@@ -48,7 +48,9 @@ class TestResult:
 class GoldenQAEvaluator:
     """Evaluates RAG system against golden Q&A test cases"""
 
-    def __init__(self, test_cases_path: str = "scripts/golden_qa_test_cases.json"):
+    def __init__(self, test_cases_path: str = None):
+        if test_cases_path is None:
+            test_cases_path = config.evaluation.test_cases_file
         self.test_cases_path = Path(test_cases_path)
         self.test_cases = self._load_test_cases()
         self.results: List[TestResult] = []
@@ -115,6 +117,11 @@ class GoldenQAEvaluator:
 
             if not test_result.passed:
                 logger.warning(f"❌ Failed: {test_result.error or test_result.status}")
+
+            # Clear session memory between tests to prevent history bleed
+            session_id = f"eval_{test_id}"
+            logger.info(f"🧹 Clearing memory for session: {session_id}")
+            orchestrator.clear_memory(session_id)
 
             return test_result
 
@@ -403,13 +410,13 @@ class GoldenQAEvaluator:
     def _save_results(self, report: Dict):
         """Save results to JSON files"""
         # Save current results
-        results_file = Path("evaluation_results.json")
+        results_file = Path(config.evaluation.results_file)
         with open(results_file, 'w') as f:
             json.dump(report, f, indent=2)
         logger.info(f"\n💾 Results saved to: {results_file}")
 
         # Append to history
-        history_file = Path("evaluation_history.json")
+        history_file = Path(config.evaluation.history_file)
         history = []
         if history_file.exists():
             with open(history_file, 'r') as f:
@@ -469,7 +476,6 @@ class GoldenQAEvaluator:
         logger.info("\n" + "="*80)
         if summary['accuracy'] >= 0.70:
             logger.success("✅ EVALUATION PASSED (Accuracy >= 70%)")
-            logger.success("✅ Bonus Point #2 COMPLETE!")
         else:
             logger.warning(f"⚠️  EVALUATION BELOW THRESHOLD (Need 70%, got {accuracy_pct:.1f}%)")
         logger.info("="*80 + "\n")
