@@ -41,7 +41,8 @@ class RecursiveRetriever:
         query: str,
         initial_top_k: Optional[int] = None,
         depth: int = 0,
-        visited_ids: Optional[Set[str]] = None
+        visited_ids: Optional[Set[str]] = None,
+        metadata_filter: Optional[Dict] = None
     ) -> List[RetrievalNode]:
         """
         Recursively retrieve documents following citation chains.
@@ -72,7 +73,8 @@ class RecursiveRetriever:
         results = self.vector_store.query_with_reranking(
             query=query,
             query_vector=query_embedding,
-            top_k=top_k
+            top_k=top_k,
+            filter=metadata_filter
         )
 
         nodes = []
@@ -112,7 +114,8 @@ class RecursiveRetriever:
                         query=citation,
                         initial_top_k=3,  # Fewer results for nested retrievals
                         depth=depth + 1,
-                        visited_ids=visited_ids
+                        visited_ids=visited_ids,
+                        metadata_filter=metadata_filter  # Propagate filter to recursive calls
                     )
 
                     # Link child nodes to parent

@@ -1,0 +1,112 @@
+{
+  "test_cases": [
+    {
+      "id": "ambiguous_query_1",
+      "category": "ambiguous",
+      "query": "How many examples are enough for good accuracy?",
+      "description": "Assignment page 3: Ambiguous question - 'enough' is vague, needs dataset and accuracy target",
+      "expected_behavior": "detect_ambiguity",
+      "expected_clarification_topics": [
+        "dataset",
+        "accuracy target",
+        "task type",
+        "model",
+        "context"
+      ],
+      "should_block": false,
+      "should_ask_questions": true,
+      "max_latency_seconds": 5
+    },
+    {
+      "id": "ambiguous_query_2",
+      "category": "ambiguous",
+      "query": "Tell me more about it",
+      "description": "Assignment page 3: Without context/chat history, 'it' is vague",
+      "expected_behavior": "detect_ambiguity",
+      "expected_clarification_topics": [
+        "context",
+        "referent",
+        "what 'it' means",
+        "specify topic"
+      ],
+      "should_block": false,
+      "should_ask_questions": true,
+      "max_latency_seconds": 5
+    },
+    {
+      "id": "pdf_query_1",
+      "category": "pdf_only",
+      "query": "Which prompt template gave the highest zero-shot accuracy on Spider in Zhang et al. (2024)?",
+      "description": "Assignment page 3: PDF-only query - Zhang et al. report SimpleDDL-MD-Chat as top template (65-72% EX)",
+      "expected_behavior": "answer_from_pdf",
+      "expected_keywords": [
+        "SimpleDDL-MD-Chat",
+        "65",
+        "72",
+        "EX"
+      ],
+      "expected_source_paper": "Zhang",
+      "expected_year": "2024",
+      "should_cite_source": true,
+      "should_not_use_web": true,
+      "max_latency_seconds": 20
+    },
+    {
+      "id": "pdf_query_2",
+      "category": "pdf_only",
+      "query": "What execution accuracy does davinci-codex reach on Spider with the 'Create Table + Select 3' prompt?",
+      "description": "Assignment page 3: PDF-only query - davinci-codex attains 67% execution accuracy",
+      "expected_behavior": "answer_from_pdf",
+      "expected_keywords": [
+        "67",
+        "execution accuracy",
+        "Spider",
+        "dev set"
+      ],
+      "expected_source_paper": "Rajkumar",
+      "should_cite_source": true,
+      "should_not_use_web": true,
+      "max_latency_seconds": 20
+    },
+    {
+      "id": "autonomous_query_1",
+      "category": "autonomous",
+      "query": "What's the state-of-the-art text-to-sql approach? And search on the web to tell me more about the authors who contributed to the approach",
+      "description": "Assignment page 3: Multi-agent must autonomously: 1) look for SOTA in PDFs, 2) find authors, 3) search web for author info",
+      "expected_behavior": "multi_step_planning",
+      "expected_steps": [
+        "pdf_retrieval",
+        "author_extraction",
+        "web_search"
+      ],
+      "should_use_hybrid": true,
+      "should_use_pdf": true,
+      "should_use_web": true,
+      "min_pdf_sources": 1,
+      "min_web_sources": 1,
+      "max_latency_seconds": 30
+    },
+    {
+      "id": "web_query_1",
+      "category": "web_only",
+      "query": "What did OpenAI release this month?",
+      "description": "Assignment page 3: Out-of-scope query - system should recognize not in PDFs and search web",
+      "expected_behavior": "route_to_web",
+      "should_use_web_search": true,
+      "should_not_use_pdf": true,
+      "max_latency_seconds": 15
+    }
+  ],
+  "metadata": {
+    "source": "ArcFusion Assignment - Page 3: Real-World Scenarios to Handle",
+    "total_test_cases": 6,
+    "categories": {
+      "ambiguous": 2,
+      "pdf_only": 2,
+      "autonomous": 1,
+      "web_only": 1
+    },
+    "passing_threshold": 0.70,
+    "description": "Golden Q&A test suite for evaluating ArcFusion RAG system against assignment requirements"
+  }
+}

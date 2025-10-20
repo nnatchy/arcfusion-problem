@@ -22,12 +22,15 @@ help:
 	@echo "  make shell-api      - Enter API container shell (alias)"
 	@echo ""
 	@echo "🧪 Testing Commands:"
-	@echo "  make test           - Run all tests locally"
-	@echo "  make test-components - Test core components"
-	@echo "  make test-simple    - Run simple end-to-end test"
-	@echo "  make test-memory    - Test history compression"
-	@echo "  make test-perf      - Run performance benchmarks"
-	@echo "  make check          - Check system status"
+	@echo "  make test              - Run component tests"
+	@echo "  make test-components   - Test core components"
+	@echo "  make test-simple       - Run simple end-to-end test"
+	@echo "  make test-eval         - Run Golden Q&A evaluation (Bonus #2)"
+	@echo "  make test-eval-threshold - Check if evaluation meets 70%% threshold"
+	@echo "  make test-all          - Run all tests (components + simple + eval)"
+	@echo "  make test-memory       - Test history compression"
+	@echo "  make test-perf         - Run performance benchmarks"
+	@echo "  make check             - Check system status"
 	@echo ""
 	@echo "📚 Data Commands:"
 	@echo "  make ingest         - Ingest PDFs to Pinecone (local)"
@@ -157,6 +160,17 @@ test-memory:
 test-perf:
 	@echo "🧪 Running performance benchmarks..."
 	uv run python scripts/performance_test.py
+
+test-eval:
+	@echo "🧪 Running Golden Q&A evaluation (Bonus #2)..."
+	uv run python scripts/evaluate_golden_qa.py
+
+test-eval-threshold:
+	@echo "🎯 Checking evaluation threshold..."
+	uv run python scripts/check_accuracy_threshold.py
+
+test-all: test-components test-simple test-eval
+	@echo "✅ All tests complete!"
 
 # ============================================
 # Data Commands

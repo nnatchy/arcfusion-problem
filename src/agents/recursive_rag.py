@@ -1,6 +1,7 @@
 """Recursive RAG Agent - Multi-hop retrieval for academic papers"""
 
 import json
+import re
 from typing import Dict, Any, List, Optional
 from loguru import logger
 
@@ -56,11 +57,15 @@ class RecursiveRAGAgent:
         if history is None:
             history = []
 
+        # Extract paper filter from query if author/year is mentioned
+        paper_filter = self._extract_paper_filter(query)
+
         # Perform retrieval using RecursiveRetriever
         retrieval_results = await self.retriever.retrieve(
             query=query,
             depth=depth,
-            visited_ids=set()
+            visited_ids=set(),
+            metadata_filter=paper_filter
         )
 
         # Format retrieved context
@@ -157,6 +162,58 @@ class RecursiveRAGAgent:
             )
 
         return "\n".join(formatted)
+
+    def _extract_paper_filter(self, query: str) -> Optional[Dict]:
+        """
+        Extract paper author/year from query for metadata filtering.
+
+        This enables paper-aware retrieval when user mentions specific papers.
+
+        Examples:
+            - "Zhang et al. 2024" → filter for year "2024"
+            - "Rajkumar et al. (2022)" → filter for year "2022"
+            - "Chang and Fosler-Lussier 2023" → filter for year "2023"
+
+        Args:
+            query: User query to extract paper metadata from
+
+        Returns:
+            Pinecone metadata filter dict, or None if no paper mentioned
+
+        Note:
+            We filter by year only because:
+            1. Pinecone serverless doesn't support $regex operator
+            2. Title field already contains author names, so semantic search will prioritize correct paper
+            3. Year is stored as string in Pinecone metadata
+            4. This approach is simpler and more reliable than complex string matching
+        """
+        # Pattern 1: "Author et al. YYYY" or "Author et al. (YYYY)"
+        pattern1 = r'([A-Z][a-z]+)\s+et\s+al\.?\s*\(?(\d{4})\)?'
+        match = re.search(pattern1, query, re.IGNORECASE)
+
+        if match:
+            author = match.group(1)
+            year = match.group(2)  # Keep as string
+            logger.info(f"📄 Detected paper filter: {author} et al. {year}")
+
+            # Filter by year only - semantic search will handle author matching
+            return {"year": year}
+
+        # Pattern 2: "Author and Author YYYY"
+        pattern2 = r'([A-Z][a-z]+)\s+and\s+([A-Z][a-z-]+)\s+\(?(\d{4})\)?'
+        match = re.search(pattern2, query)
+
+        if match:
+            author1 = match.group(1)
+            author2 = match.group(2)
+            year = match.group(3)  # Keep as string
+            logger.info(f"📄 Detected paper filter: {author1} and {author2} {year}")
+
+            # Filter by year only
+            return {"year": year}
+
+        # No paper mentioned
+        return None
 
 
 # Singleton instance
